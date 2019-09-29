@@ -1,13 +1,23 @@
 package Projeto_IA;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Search {
 
     private static Queue<int[]> solution;
-    private static Queue<int[]> solutionRemoved;
     private static Queue<int[]> generated;
+    private static HashSet redundantState;
+
+    public static void printState(int[] state) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                System.out.print((state[j] == i) ? "|Q" : "|_");
+            }
+            System.out.println("|");
+        }
+    }
 
     public static boolean isGoal(int[] state){
         for(int i = 0; i < state.length; i++){
@@ -47,7 +57,7 @@ public class Search {
                     do {
                         state[col]++;
                     } while ((state[col] <= 8) && !issafe(state, col));
-                    if (state[col] < 8 && col == atual) {
+                    if (state[col] < 8 && col == atual && redundantState.add(state.clone())) {
                         generated.add(state);
                         return true;
                     } else if(state[col] > 8){
@@ -72,37 +82,37 @@ public class Search {
         }
     }
 
-    public static void depthFirstSearch(int[] initialState) {
+        public static void depthFirstSearch(int[] initialState) {
         int[] state = initialState;
         generated = new LinkedList<>();
         solution = new LinkedList<>();
-        solutionRemoved = new LinkedList<>();
-        solution.add(state);
+        redundantState = new HashSet();
+        solution.add(state.clone());
         while(true){
-//            generated.add(initialState);
             if(isGoal(state)){
-                System.out.println("Estado objetivo alcançado");
-                for(int i = 0; i < 8; i++ ){
-                    System.out.print(state[i] + ";");
+                System.out.println("Solução:");
+                while(!solution.isEmpty()){
+                    printState(solution.remove());
+                    System.out.println();
                 }
                 break;
             }else{
-                for(int i = 0; i < 8; i++ ){
-                    System.out.print(state[i] + ";");
-                }
-                System.out.println();
                 if(!generateState(state, 1)){
-//                    solutionRemoved.add(solution.remove());
-//                    generated.add(solution.element());
-
+                    try {
+//                        solution.pop();
+//                        generated.add(solution.peek());
+                    }catch(Exception e){
+                        System.out.println("Não existe solução");
+                        return;
+                    }
                 }
             }
             if(generated.isEmpty()){
                 System.out.println("Erro");
                 break;
             }
+            solution.add(generated.element().clone());
             state = generated.remove();
-            solution.add(state);
         }
 
     }
