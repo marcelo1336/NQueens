@@ -1,18 +1,15 @@
 package Projeto_IA;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Search {
 
-    private static Queue<int[]> solution;
-    private static Queue<int[]> generated;
+    private static Deque<int[]> solution;
+    private static Deque<int[]> generated;
     private static HashSet redundantState;
 
     public static void printState(int[] state) {
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i <= state.length; i++) {
+            for (int j = 0; j < state.length; j++) {
                 System.out.print((state[j] == i) ? "|Q" : "|_");
             }
             System.out.println("|");
@@ -27,6 +24,7 @@ public class Search {
         }
         return true;
     }
+
     static boolean issafe(int[] state, int column) {
         int x = state[column];
         for (int i = 1; i <= column; i++) {
@@ -56,14 +54,14 @@ public class Search {
                 while (col >= 0) {
                     do {
                         state[col]++;
-                    } while ((state[col] <= 8) && !issafe(state, col));
-                    if (state[col] < 8 && col == atual && redundantState.add(state.clone())) {
-                        generated.add(state);
+                    } while ((state[col] <= state.length) && !issafe(state, col));
+                    if (state[col] < state.length && col == atual && redundantState.add(state.clone())) {
+                        generated.addFirst(state.clone());
                         return true;
                     } else if(state[col] > 8){
                         state[col] = 0;
                         col--;
-                    }else{
+                    }else if(col < state.length-1){
                         col++;
                     }
                 }
@@ -99,8 +97,7 @@ public class Search {
             }else{
                 if(!generateState(state, 1)){
                     try {
-//                        solution.pop();
-//                        generated.add(solution.peek());
+                        solution.removeLast();
                     }catch(Exception e){
                         System.out.println("Não existe solução");
                         return;
@@ -111,8 +108,8 @@ public class Search {
                 System.out.println("Erro");
                 break;
             }
-            solution.add(generated.element().clone());
-            state = generated.remove();
+            state = generated.removeFirst();
+            solution.addLast(state.clone());
         }
 
     }
