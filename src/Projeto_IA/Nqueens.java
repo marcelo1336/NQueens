@@ -4,7 +4,7 @@ public class Nqueens {
     int[] board;
 
     public Nqueens(){
-        board = new int[]{-1,-1,-1,-1,-1,-1,-1,-1};
+        board = new int[]{0,0,0,0};
     }
 
     public void solve(String serachType){
