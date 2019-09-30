@@ -7,15 +7,17 @@ public class Search {
     private static Deque<int[]> solution;
     private static Deque<int[]> generated;
     private static Set<String> redundantState;
+    private static BFS bfs = new BFS();
+    private static BFS.State bfsManager;
 
-    public static int countQueen(int[] state){
+    public static int countQueen(int[] state) {
         int count = 0;
-        for(int i =0; i < state.length;i++){
-            if(state[i] > 0) {
+        for (int i = 0; i < state.length; i++) {
+            if (state[i] > 0) {
                 count++;
             }
         }
-        return  count;
+        return count;
     }
 
     public static void printState(int[] state) {
@@ -48,12 +50,12 @@ public class Search {
         return true;
     }
 
-    public static  String toString(int[] state){
+    public static String toString(int[] state) {
         String result = "";
         for (int i = 0; i < state.length; i++) {
             result += state[i];
         }
-        return  result;
+        return result;
     }
 
 
@@ -72,18 +74,20 @@ public class Search {
         }
         System.out.println("Estado atual");
         printState(state);
+        System.out.println("Estados gerados a partir do atual");
         while (count < state.length) {
             do {
                 state[col]++;
             } while ((state[col] <= state.length) && !issafe(state, col));
             if (state[col] <= state.length && col == atual && redundantState.add(toString(state))) {
+                printState(state);
+                System.out.println();
                 if (type == 1) {
-                    System.out.println("Estado gerado");
-                    printState(state);
-
                     generated.addFirst(state.clone());
-                } else
+                } else {
                     generated.addLast(state.clone());
+                    bfs.add(state.clone(), bfsManager, currentState.clone());
+                }
                 inserted++;
             }
             count++;
@@ -139,38 +143,35 @@ public class Search {
     }
 
     public static void breadthFirstSearch(int[] initialState) {
-        int[] state = initialState;
+        int[] state = initialState.clone();
         generated = new LinkedList<>();
-        solution = new LinkedList<>();
         redundantState = new HashSet<>();
-        solution.add(state.clone());
         redundantState.add(state.toString());
+        bfsManager = new BFS.State(state.clone());
         while (true) {
             if (isGoal(state)) {
-                System.out.println("Solução:");
-                while (!solution.isEmpty()) {
-                    printState(solution.remove());
+                Deque<int[]> res = bfs.findPartialPath(bfsManager, state.clone());
+                System.out.println("Caminho parcial atual - solução:");
+                for (int[] aux : res) {
+                    printState(aux);
                     System.out.println();
                 }
                 break;
             } else {
-                if (!generateState(state, 1)) {
-                    try {
-                        solution.removeLast();
-                    } catch (Exception e) {
-                        System.out.println("Erro: " + e);
-                    }
-                }
+                generateState(state, 2);
             }
             if (generated.isEmpty()) {
                 System.out.println("BFS: Não possui solução");
                 break;
             }
-            state = generated.removeLast();
-            while (countQueen(state) <= countQueen(solution.getLast()))
-                solution.removeLast();
-            solution.addLast(state.clone());
+            Deque<int[]> res = bfs.findPartialPath(bfsManager, state.clone());
+            System.out.println("Caminho parcial atual");
+            for (int[] aux : res) {
+                printState(aux);
+                System.out.println();
+            }
+            state = generated.removeFirst();
         }
-
     }
+
 }
