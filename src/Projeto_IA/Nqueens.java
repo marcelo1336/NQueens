@@ -3,8 +3,13 @@ package Projeto_IA;
 public class Nqueens {
     int[] board;
 
-    public Nqueens(){
-        board = new int[]{0,0,0,0};
+    public Nqueens(int n){
+
+        board = new int[n];
+        for (int i = 0; i < n; i++){
+            board[i] = 0;
+        }
+
     }
 
     public void solve(String serachType){

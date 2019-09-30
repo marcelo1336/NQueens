@@ -74,7 +74,8 @@ public class Search {
         }
         System.out.println("Estado atual");
         printState(state);
-        System.out.println("Estados gerados a partir do atual");
+        System.out.println("\nEstados gerados a partir do atual");
+        Stack<int[]> aux = new Stack<>();
         while (count < state.length) {
             do {
                 state[col]++;
@@ -83,7 +84,7 @@ public class Search {
                 printState(state);
                 System.out.println();
                 if (type == 1) {
-                    generated.addFirst(state.clone());
+                    aux.push(state.clone());
                 } else {
                     generated.addLast(state.clone());
                     bfs.add(state.clone(), bfsManager, currentState.clone());
@@ -93,8 +94,14 @@ public class Search {
             count++;
         }
         if (inserted > 0) {
+            if(type == 1){
+                while(!aux.empty()){
+                    generated.addFirst(aux.pop());
+                }
+            }
             return true;
         }
+        System.out.println("Nenhum estado gerado!!");
         return false;
     }
 
@@ -107,31 +114,27 @@ public class Search {
         solution.add(state.clone());
         redundantState.add(state.toString());
         while (true) {
+            Queue<int[]> path = new LinkedList<>(solution);
+            System.out.println("Caminho parcial atual");
+            for (int[] node: path) {
+                printState(node);
+                System.out.println();
+            }
             if (isGoal(state)) {
-                System.out.println("Solução:");
-                while (!solution.isEmpty()) {
-                    printState(solution.remove());
-                    System.out.println();
-                }
+                System.out.println("Solução encontrada!!");
                 break;
             } else {
                 if (!generateState(state, 1)) {
                     try {
-                        System.out.println("removido");
-                        printState(state);
                         solution.removeLast();
                     } catch (Exception e) {
-                        System.out.println("Não existe solução");
+                        System.out.println("Falha do sistema");
                         return;
                     }
                 }
             }
             if (generated.isEmpty()) {
-                System.out.println("Erro");
-                while (!solution.isEmpty()) {
-                    printState(solution.remove());
-                    System.out.println();
-                }
+                System.out.println("Erro: não possui solução!!\n");
                 break;
             }
             state = generated.removeFirst();
@@ -149,13 +152,14 @@ public class Search {
         redundantState.add(state.toString());
         bfsManager = new BFS.State(state.clone());
         while (true) {
+            Deque<int[]> res = bfs.findPartialPath(bfsManager, state.clone());
+            System.out.println("Caminho parcial atual");
+            for (int[] aux : res) {
+                printState(aux);
+                System.out.println();
+            }
             if (isGoal(state)) {
-                Deque<int[]> res = bfs.findPartialPath(bfsManager, state.clone());
-                System.out.println("Caminho parcial atual - solução:");
-                for (int[] aux : res) {
-                    printState(aux);
-                    System.out.println();
-                }
+                System.out.println("Solução encontrada!!");
                 break;
             } else {
                 generateState(state, 2);
@@ -163,12 +167,6 @@ public class Search {
             if (generated.isEmpty()) {
                 System.out.println("BFS: Não possui solução");
                 break;
-            }
-            Deque<int[]> res = bfs.findPartialPath(bfsManager, state.clone());
-            System.out.println("Caminho parcial atual");
-            for (int[] aux : res) {
-                printState(aux);
-                System.out.println();
             }
             state = generated.removeFirst();
         }
